@@ -3,17 +3,19 @@ const express = require('express');
 const cors = require('cors');
 const ejs = require('ejs');
 const pg = require('pg');
+const override = require('method-override')
 // configuration
 require('dotenv').config();
 const app = express();
 const superagent = require('superagent');
 const { text } = require('express');
 app.use(cors());
-//const client = new pg.Client(process.env.DATABASE_URL);
-const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });//heroko
+const client = new pg.Client(process.env.DATABASE_URL);
+// const client = new pg.Client({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } });//heroko
 
 app.use(express.static('./public'));
 app.use(express.urlencoded({ extended: true }));
+app.use(override("_method"))
 
 const PORT = process.env.PORT;
 
@@ -96,17 +98,46 @@ app.post('/books', (req,res)=>{
     const item=JSON.parse(req.body.item);
     const dbQuery='INSERT INTO books (author, title, isbn, image_url,description)VALUES($1,$2,$3,$4,$5)'
     const safeValues=[item.author,item.title,item.isbn,item.image_url,item.description]
-    console.log(safeValues)
+    // console.log(safeValues)
     client.
     query(dbQuery,safeValues).then(data=>{
         console.log("successfully inserted ");
-        console.log(data);
+        // console.log(data);
         res.render('./pages/books/show.ejs',{"books":Array.of(item)})
     }).catch(error=>{
         console.log("error in inserting to db\n",error);
         res.render('./pages/error', { "error": error })
     })
 })
+
+
+app.put('/books/:id', (req,res)=>{
+    //collect the data from the form
+    //update the database with the values
+    // when I hit update it read all the page for me with the new values(redirect)
+    const item=req.body;
+    console.log(req.params.id);
+    let id = req.params.id;
+    let updateQuery = 'UPDATE books SET title=$1, author=$2, isbn=$3, image_url=$4, description=$5 WHERE id=$6 '
+    const safeValues=[item.title, item.authors, item.isbn,item.image,item.description, id];
+    client.query(updateQuery,safeValues).then(data =>{
+        res.redirect(`/books/${id}`)
+    }).catch(error=>{
+        console.log("error in Updating data\n",error);
+    })
+})
+
+
+// app.delete('/books/:id', (res,req)=>{
+//     let id = req.params.id;
+//     let deleteQuery = 'DELETE FROM books WHERE id=$1';
+//     let safeValue = [id];
+//     client.query(deleteQuery,safeValue).then(data =>{
+//         redirect('/')
+//     }).catch(error=>{
+//         console.log("error when deleting data\n",error);
+//     })
+// })
 
 /********************************** **
 ***************DATA MODEL  ***********

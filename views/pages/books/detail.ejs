@@ -15,11 +15,17 @@
             <p class="book-author">
                 <%=element.author%>
             </p><br>
-           
+
             <p class="book-desc">
                 <%=element.description%>
             </p><br>
-            
+            <button id="updateBtn" onclick="">Update Details</button>
         </div>
         <%})%>
+            
+        <section id="delete-form">
+            <form action="/books/:id?_method=DELETE" method="POST">
+                <button type="submit"> Delete Task</button>
+        
+            </form>
 </section>
