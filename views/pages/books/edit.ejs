@@ -1,0 +1,15 @@
+<h1> Hello This is working</h1>
+<section id="update-form">
+    <p>Hide and show form</p>
+    <form action="/books/<%= books[0].id%>?_method=PUT" method="POST">
+        <input type="hidden" value="put" name="_method">
+        <input type="text" name="title" value="<%= books[0].title %>" placeholder="Populated Title">
+        <input type="text" name="authors" value="<%=books[0].authors%>" placeholder="Populated Author">
+        <input type="text" name="isbn" value="<%=books[0].isbn%>" placeholder="Populated ISBN"> 
+        <input type="text" name="image" value="<%=books[0].image_url%>" placeholder="Populated Image URL">
+        <input type="text" name="description" value="<%=books[0].description%>" placeholder="Populated Description">
+        <button type="submit">Update Book</button>
+
+    </form>
+</section>
+</section>
