@@ -4,28 +4,29 @@
             <h1>Saved Book</h1>
             <a href="/">HOME PAGE</a>
     </header>
-    <%books.forEach(element=>{%>
+    
         <div class="grid-item">
             <br>
-            <img class="book-img" src="<%=element.image_url%>">
+            <img class="book-img" src="<%=books[0].image_url%>">
             <br>
             <p class="book-title">
-                <%=element.title%>
+                <%=books[0].title%>
             </p><br>
             <p class="book-author">
-                <%=element.author%>
+                <%=books[0].author%>
             </p><br>
 
             <p class="book-desc">
-                <%=element.description%>
+                <%=books[0].description%>
             </p><br>
             <button id="updateBtn" onclick="">Update Details</button>
         </div>
-        <%})%>
-            
         <section id="delete-form">
-            <form action="/books/:id?_method=DELETE" method="POST">
+            <form action="/books/<%=books[0].id%>?_method=DELETE" method="POST">
                 <button type="submit"> Delete Task</button>
         
             </form>
 </section>
+       
+    
+        <%- include( './edit' ) %>

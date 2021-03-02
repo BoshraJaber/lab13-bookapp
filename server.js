@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const ejs = require('ejs');
 const pg = require('pg');
-const override = require('method-override')
+const methodoverride = require('method-override')
 // configuration
 require('dotenv').config();
 const app = express();
@@ -15,7 +15,7 @@ const client = new pg.Client(process.env.DATABASE_URL);
 
 app.use(express.static('./public'));
 app.use(express.urlencoded({ extended: true }));
-app.use(override("_method"))
+app.use(methodoverride("_method"))
 
 const PORT = process.env.PORT;
 
@@ -37,7 +37,7 @@ app.get('/searches/new', (req, res) => {
     res.render('./pages/searches/new')
 });
 app.get('/', (req, res) => {
-    const query='SELECT author,title,isbn,image_url,description FROM books';
+    const query='SELECT * FROM books';
     client.
     query(query).
     then(data=>{
@@ -79,11 +79,12 @@ app.post('/searches/show', (req, res) => {
 });
 app.get('/books/:id', (req,res)=>{
     let id = req.params.id;
-    const query='SELECT author,title,isbn,image_url,description FROM books WHERE id=$1';
+    const query='SELECT * FROM books WHERE id=$1 ';
     let safeValue = [id];
     client.
     query(query,safeValue).
     then(data=>{
+        console.log(data.rows);
         res.render('./pages/books/show.ejs',{"books":data.rows})
     }).catch(error=>{
         console.log(error);
@@ -96,14 +97,15 @@ app.get('/books/show', (req,res)=>{
 })
 app.post('/books', (req,res)=>{
     const item=JSON.parse(req.body.item);
-    const dbQuery='INSERT INTO books (author, title, isbn, image_url,description)VALUES($1,$2,$3,$4,$5)'
+    const dbQuery='INSERT INTO books (author, title, isbn, image_url,description)VALUES($1,$2,$3,$4,$5) RETURNING id'
     const safeValues=[item.author,item.title,item.isbn,item.image_url,item.description]
     // console.log(safeValues)
     client.
     query(dbQuery,safeValues).then(data=>{
-        console.log("successfully inserted ");
-        // console.log(data);
-        res.render('./pages/books/show.ejs',{"books":Array.of(item)})
+
+        // console.log("successfully inserted ");
+        // console.log(data.rows[0].id);
+        res.redirect(`/books/${data.rows[0].id}`)
     }).catch(error=>{
         console.log("error in inserting to db\n",error);
         res.render('./pages/error', { "error": error })
@@ -128,16 +130,19 @@ app.put('/books/:id', (req,res)=>{
 })
 
 
-// app.delete('/books/:id', (res,req)=>{
-//     let id = req.params.id;
-//     let deleteQuery = 'DELETE FROM books WHERE id=$1';
-//     let safeValue = [id];
-//     client.query(deleteQuery,safeValue).then(data =>{
-//         redirect('/')
-//     }).catch(error=>{
-//         console.log("error when deleting data\n",error);
-//     })
-// })
+app.delete('/books/:id', (req,res)=>{
+    let id = req.params.id;
+    console.log(id);
+    // console.log("not working!!!!!!!!!!!");
+    let deleteQuery = 'DELETE FROM books WHERE id=$1';
+    let safeValue = [id];
+    client.query(deleteQuery,safeValue).then(data =>{
+        console.log(data);
+    res.redirect('/')
+    }).catch(error=>{
+        console.log("error when deleting data\n",error);
+    })
+})
 
 /********************************** **
 ***************DATA MODEL  ***********

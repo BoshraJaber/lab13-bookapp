@@ -16,10 +16,10 @@
                 <%=element.author%>
             </p><br>
            
-            <form action="/books" method="POST">
-                <input type="hidden" name="item" value="<%=JSON.stringify(element)%>">
-               <input type="submit" value="Select This Book">
+            <form action="/books/<%= element.id%>" method="GET">
+               <input type="submit" value="View Details">
               </form>
+             
             
         </div>
         <%})%>
